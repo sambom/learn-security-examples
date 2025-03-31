@@ -30,6 +30,11 @@ This will create a database in MongoDB called __infodisclosure__. Verify its pre
 
 Answer the following:
 
-1. Briefly explain the potential vulnerabilities in **insecure.ts** that can lead to a DoS attack.
-2. Briefly explain how a malicious attacker can exploit them.
-3. Briefly explain the defensive techniques used in **secure.ts** to prevent the DoS vulnerability?
+1. **Briefly explain the potential vulnerabilities in `insecure.ts` that can lead to a DoS attack.**  
+   In `insecure.ts`, there is no exception handling when attempting to retrieve a user from the database. If the query fails, the error is unhandled, which can cause the server to crash. This lack of error handling makes the application vulnerable to Denial-of-Service (DoS) attacks.
+
+2. **Briefly explain how a malicious attacker can exploit them.**  
+   Without input validation, an attacker can send requests that deliberately cause the database query to fail. For example, supplying an invalid ID (e.g., an empty string) will result in an error like: _"Argument passed in must be a 24 character hex string, 12 byte Uint8Array, or an integer."_ Since this error isn't caught, it can crash the server. Repeating such requests rapidly can overload and bring down the application.
+
+3. **Briefly explain the defensive techniques used in `secure.ts` to prevent the DoS vulnerability.**  
+   `secure.ts` includes a `try-catch` block around the database query to handle any errors and prevent the server from crashing. If an error occurs, a user-friendly message is returned instead. Additionally, a rate limiter is applied to the `/userinfo` route, allowing only one request per IP every 5 seconds. This rate limiting reduces the risk of the server being overwhelmed by repeated malicious requests.

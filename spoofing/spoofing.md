@@ -29,6 +29,15 @@ This example demonstrates spoofind through two ways -- Stealing cookies programm
 
 ## For you to answer
 
-1. Briefly explain the spoofing vulnerability in **insecure.ts**.
-2. Briefly explain different ways in which vulnerability can be exploited.
-3. Briefly explain why **secure.ts** does not have the spoofing vulnerability in **insecure.ts**.
+1. **Briefly explain the spoofing vulnerability in `insecure.ts`.**  
+   The vulnerability stems from the session middleware configuration. When creating a session, the `httpOnly` flag for the session cookie is set to `false`, allowing client-side JavaScript to access the cookie. This opens the door for attackers to steal the session ID (`sid`) and impersonate a user. Additionally, the session secret is hardcoded, which further weakens the security.
+
+2. **Briefly explain different ways in which the vulnerability can be exploited.**  
+   One method of exploitation is **session hijacking**. Since `httpOnly` is set to `false`, malicious scripts can access the session cookie using JavaScript (e.g., `document.cookie`) and send it to a remote server controlled by the attacker. This can be done by tricking a victim into clicking a link or visiting a malicious site.  
+   
+   Another method is **Cross-Site Request Forgery (CSRF)**. An attacker can embed hidden forms or scripts on their own site that send requests to the legitimate server. If the victim is authenticated, their browser will automatically include the session cookie with the request, making it appear as if the action was performed by the victim.  
+   
+   Furthermore, since the session secret is hardcoded and potentially guessable or discoverable, an attacker could forge their own session tokens, bypassing authentication altogether.
+
+3. **Briefly explain why `secure.ts` does not have the spoofing vulnerability in `insecure.ts`.**  
+   `secure.ts` mitigates **session hijacking** by setting `httpOnly` to `true`, preventing access to cookies via client-side JavaScript. It also prevents **CSRF** attacks by enabling the `sameSite` attribute, which ensures that cookies are only sent with requests originating from the same site. This stops unauthorized cross-site requests from including the victim's cookies. Additionally, `secure.ts` avoids hardcoding the session secret, making it more difficult for attackers to forge valid session tokens.
